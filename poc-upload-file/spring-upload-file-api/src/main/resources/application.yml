@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: spring-upload-file-api
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 200MB
+
+upload:
+  file:
+    temp-dir: /tmp/test/upload/
