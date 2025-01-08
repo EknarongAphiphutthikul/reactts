@@ -4,13 +4,13 @@ import { uploadChunkFile } from '../../api/UploadChunkFileApi';
 const SelectFileButton: FC = () => {
   const [file, setFile] = useState<File | null>(null);
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange =  async(e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
-      uploadChunkFile(e.target.files[0], "").then((response) => {
-        console.log(response);
+      await uploadChunkFile(e.target.files[0], "").then((response) => {
+        console.log("success", response);
       }).catch((error) => {
-        console.log(error);
+        console.log("error", error);
       });
     }
   };

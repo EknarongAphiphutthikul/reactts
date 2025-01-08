@@ -23,6 +23,7 @@ export const uploadChunkFile = async (file: File, fileGroupId: string): Promise<
         return Promise.reject("file size is zero");
     }
 
+    console.log("start upload first chunk");
     var firstChunk = chunks[0];
     firstChunk.append("file_group_id", fileGroupId);
     return callUploadChunkFile(firstChunk).then((response: UploadChunkFileResponse) => {
@@ -31,6 +32,7 @@ export const uploadChunkFile = async (file: File, fileGroupId: string): Promise<
         if (totalChunks === 1) {
             return Promise.resolve(response);
         }
+        console.log("start upload parallel");
         return uploadChunkFileParallel(chunks, response);
     }).catch((error: any) => {
         return Promise.reject(error);
@@ -38,6 +40,7 @@ export const uploadChunkFile = async (file: File, fileGroupId: string): Promise<
 }
 
 const uploadChunkFileParallel = async (chunks: FormData[], response: UploadChunkFileResponse): Promise<UploadChunkFileResponse> => {
+    console.log("uploadChunkFileParallel");
     if (response.data == null || response.data === undefined) {
         return Promise.reject("response data is null or undefined");
     }
@@ -58,20 +61,30 @@ const uploadChunkFileParallel = async (chunks: FormData[], response: UploadChunk
         return chunk;
     });
 
+    console.log("formDatas size ", formDatas.length);
     if (formDatas.length > 1) {
         let processing: Promise<any>[] = [];
         for (var i = 0; i < formDatas.length - 1; i++) {
+            console.log("chunk index ", i);
             processing.push(callUploadChunkFile(formDatas[i]));
             if (processing.length === maxThreadUploadParallel || i === formDatas.length - 2) {
-                let resultError = await Promise.all(processing).catch((error: AxiosError) => { return Promise.reject(error) });
+                console.log("start processing parallel");
+                let resultError = await Promise.all(processing).then((respo: UploadChunkFileResponse[]) => {
+                    return Promise.resolve([]);
+                }).catch((error: AxiosError) => { 
+                    return Promise.reject(error) 
+                });
+                console.log("resultError ", resultError);
                 if (resultError.length > 0) {
                     return Promise.reject(resultError[0]);
                 }
+                console.log("done processing parallel");
                 processing = [];
             }
         }
     }
 
+    console.log("last chunk");
     const lastChunk = formDatas[formDatas.length - 1];
     return callUploadChunkFile(lastChunk).then((response: UploadChunkFileResponse) => {
         return Promise.resolve(response);

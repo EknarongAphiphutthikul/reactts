@@ -1,10 +1,12 @@
 package org.example.springuploadfileapi.service
 
 import org.example.springuploadfileapi.model.UploadFileRequestModel
-import org.example.springuploadfileapi.model.UploadFileResponseModel
+import org.example.springuploadfileapi.model.UploadFileResponse
 import org.example.springuploadfileapi.properties.UploadFileProperties
 import org.example.springuploadfileapi.utils.DateUtil
 import org.example.springuploadfileapi.utils.FileUtil
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.io.File
 import java.io.FileOutputStream
@@ -17,7 +19,9 @@ class UploadService(
         private val uploadFileProperties: UploadFileProperties,
 ) {
 
-    fun uploadFile(request: UploadFileRequestModel): UploadFileResponseModel {
+    val logger: Logger = LoggerFactory.getLogger(UploadService::class.java)
+
+    fun uploadFile(request: UploadFileRequestModel): UploadFileResponse {
         generateFileIdAndFileGroupId(request)
         checkTempDirectoryGroup(request)
 
@@ -28,7 +32,7 @@ class UploadService(
         val finalFullPath = Paths.get(request.tempDirGroup, finalFileName).toString()
         if (request.totalChunk == 1) {
             request.file?.transferTo(File(finalFullPath))
-            return UploadFileResponseModel(request.fileId!!, request.fileGroupId!!)
+            return UploadFileResponse(request.fileId!!, request.fileGroupId!!)
         }
 
         request.file?.transferTo(File(Paths.get(request.tempDirGroup, "${finalFileName}.part${request.chunk}").toString()))
@@ -38,7 +42,9 @@ class UploadService(
         if (request.chunk == request.totalChunk) {
             mergeChunks(request, finalFileName, request.totalChunk!!)
         }
-        return UploadFileResponseModel(request.fileId!!, request.fileGroupId!!)
+
+        logger.info("Upload file success: $finalFullPath chunk: ${request.chunk}")
+        return UploadFileResponse(request.fileId!!, request.fileGroupId!!)
     }
 
     private fun checkTempDirectoryGroup(request: UploadFileRequestModel) {

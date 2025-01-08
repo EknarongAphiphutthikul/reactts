@@ -1,5 +1,6 @@
 package org.example.springuploadfileapi.controller
 
+import org.example.springuploadfileapi.model.BaseStatus
 import org.example.springuploadfileapi.model.UploadFileRequestModel
 import org.example.springuploadfileapi.model.UploadFileResponseModel
 import org.example.springuploadfileapi.service.UploadService
@@ -21,6 +22,15 @@ class UploadFileController(
             uploadFileReq: UploadFileRequestModel
     ): ResponseEntity<UploadFileResponseModel> {
         logger.info("uploadFile: $uploadFileReq")
-        return ResponseEntity.ok(uploadService.uploadFile(uploadFileReq))
+        return ResponseEntity.ok(
+            UploadFileResponseModel(
+                status = BaseStatus(
+                    code = "200",
+                    message = "Success",
+                    description = "Upload file success"
+                ),
+                data = uploadService.uploadFile(uploadFileReq),
+            )
+        )
     }
 }
