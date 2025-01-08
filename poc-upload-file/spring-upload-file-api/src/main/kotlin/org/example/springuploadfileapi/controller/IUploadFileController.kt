@@ -4,10 +4,12 @@ import org.example.springuploadfileapi.model.UploadFileRequestModel
 import org.example.springuploadfileapi.model.UploadFileResponseModel
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.PostMapping
 
 interface IUploadFileController {
 
+    @CrossOrigin(origins = ["*"], allowedHeaders = ["*"], exposedHeaders = ["*"])
     @PostMapping(
             "/upload-file",
             produces = [MediaType.APPLICATION_JSON_VALUE],

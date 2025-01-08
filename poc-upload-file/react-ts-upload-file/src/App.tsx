@@ -1,25 +1,20 @@
 import React from 'react';
-import logo from './logo.svg';
+import { ErrorBoundary } from "react-error-boundary";
 import './App.css';
+import ErrorFallback from "./pages/Error/ErrorFallback";
+import { Route, Routes } from "react-router-dom";
+import ChunkFile from './pages/ChunkFile';
 
-function App() {
+const App: React.FC = () => {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <Routes>
+          <Route path="/" element={<ChunkFile />} />
+          <Route path="*" element={<div>Not Found</div>} />
+        </Routes>
+      </ErrorBoundary>
+    </>
   );
 }
 
